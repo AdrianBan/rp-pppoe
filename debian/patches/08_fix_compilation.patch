@@ -1,0 +1,11 @@
+--- a/src/pppoe.h
++++ b/src/pppoe.h
+@@ -131,7 +131,7 @@
+ #include <linux/if_ether.h>
+ #endif
+ 
+-#include <netinet/in.h>
++#include <linux/if_pppox.h>
+ 
+ #ifdef HAVE_NETINET_IF_ETHER_H
+ #include <sys/types.h>

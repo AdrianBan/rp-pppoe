@@ -1,0 +1,69 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+export DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
+build-stamp:
+	dh_testdir
+	test -f src/Makefile || (cd src && PPPD=/usr/sbin/pppd ./configure --enable-plugin)
+	$(MAKE) -C src
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	-rm -f pppoe.prj pppoe.log .pppoe.prcs_aux
+	[ ! -f src/Makefile ] || $(MAKE) -C src distclean
+	[ ! -f gui/Makefile ] || $(MAKE) -C gui distclean
+	rm -f src/pppoe-relay
+	-rm -f debian/substvars.debhelper
+	-rm -f config.h config.log config.status
+	-rm -f Makefile libevent/Makefile
+	dh_clean
+
+# Build architecture-independent files here.
+binary-indep: build
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs usr/sbin usr/share
+	$(MAKE) -C src install DESTDIR="`pwd`/debian/pppoe"
+#	Now clean out unwanted things, and move others to their places
+	rm -rf debian/pppoe/etc/ppp debian/pppoe/usr/share/doc
+	rm -rf debian/pppoe/usr/man/man5  # pppoe.conf manpage
+	rm -f debian/pppoe/usr/sbin/adsl-* debian/pppoe/usr/man/man8/adsl-*
+	rm -f debian/pppoe/usr/sbin/pppoe-setup
+	dh_installdirs etc/ppp/peers
+	install -m 0640 -o root -g dip debian/dsl-provider \
+		debian/pppoe/etc/ppp/peers/dsl-provider
+	dh_installdocs
+	dh_installexamples
+#	dh_installmanpages
+	dh_installchangelogs doc/CHANGES
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	chgrp dip debian/pppoe/usr/sbin/pppoe
+	chmod u+s debian/pppoe/usr/sbin/pppoe
+	chmod o-x debian/pppoe/usr/sbin/pppoe
+	dh_installdeb
+	dh_lintian
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

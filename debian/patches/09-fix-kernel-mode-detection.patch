@@ -1,0 +1,37 @@
+Description: Fix kernel-mode detection
+ Original configure contain an include of netinet/in.h which will duplicate
+ the defined constants.
+ .
+ rp-pppoe (3.12-1.4) unstable; urgency=low
+ .
+   * Non-maintainer upload.
+   * Add PPPoE Kernel mode.
+   * Patch to remove netinet/in.h and linux/in.h from the tests
+     because the if_pppox.h is already including in.h and in6.h
+   * Removed the pppoe-server scripts. There is a separate packages
+     named pppoe-server which provides systemd bootup services.
+Author: Adrian Ban <adrian@abtelecom.ro>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: 2018-07-17
+
+--- rp-pppoe-3.12.orig/src/configure
++++ rp-pppoe-3.12/src/configure
+@@ -4557,7 +4557,6 @@ else
+ #include <sys/socket.h>
+ #include <net/ethernet.h>
+ #include <linux/if.h>
+-#include <netinet/in.h>
+ #include <linux/if_pppox.h>
+ int main()
+ {

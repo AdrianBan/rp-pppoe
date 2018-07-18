@@ -1,0 +1,45 @@
+Description: Fix kernel mode detection and build
+ Building with Kernel Mode will fail to check headers for ifpppox.h
+ because in.h is already present in if_pppox.h
+ .
+ rp-pppoe (3.12-1.3) unstable; urgency=low
+ .
+   * Non-maintainer upload.
+   * Add PPPoE Kernel mode.
+   * Patch to remove in newer kerneles the netinet/in.h and linux/in.h
+     which is included in if_pppox.h already
+Author: Adrian Ban <adrian@abtelecom.ro>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: 2017-01-06
+
+Index: rp-pppoe-3.12/src/configure.in
+===================================================================
+--- a/src/configure.in
++++ b/src/configure.in
+@@ -25,7 +25,6 @@
+ #include<sys/socket.h>
+ #include<net/ethernet.h>
+ #include<linux/if.h>
+-#include<linux/in.h>
+ ])
+ 
+ dnl Checks for typedefs, structures, and compiler characteristics.
+@@ -168,7 +167,6 @@
+ AC_TRY_RUN([#include <sys/socket.h>
+ #include <net/ethernet.h>
+ #include <linux/if.h>
+-#include <netinet/in.h>
+ #include <linux/if_pppox.h>
+ int main()
+ {
